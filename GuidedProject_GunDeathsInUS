@@ -1,0 +1,69 @@
+import csv
+import datetime
+f = open("guns.csv", 'r')
+guns = list(csv.reader(f))
+data=guns[1:]
+years = [row[1] for row in data]
+year_counts = {}
+for year in years:
+    if year in year_counts:
+        year_counts[year] += 1
+    else:
+        year_counts[year] = 1
+#print(year_counts)
+#print(data)
+date_counts = {}
+for row in data:
+    dates = datetime.datetime(year=int(row[1]), month=int(row[2]), day=1)
+    if dates in date_counts:
+        date_counts[dates] += 1
+    else:
+        date_counts[dates] = 1
+#print(date_counts)
+sex_counts = {}
+for row in data:
+    if row[5] in sex_counts:
+        sex_counts[row[5]] += 1
+    else:
+        sex_counts[row[5]] = 1
+#print(sex_counts)
+
+race_counts = {}
+for row in data:
+    if row[7] in race_counts:
+        race_counts[row[7]] += 1
+    else:
+        race_counts[row[7]] = 1
+
+f = open("census.csv", 'r')
+census = list(csv.reader(f))
+#print(census)
+#print("race_counts:", race_counts)
+mapping = {}
+mapping = {'Hispanic':int(census[1][11]), 'Black':int(census[1][12]), 'Asian/Pacific Islander':(int(census[1][14])+int(census[1][15])), 'White': int(census[1][10]), 'Native American/Native Alaskan': int(census[1][13])}
+#print("mapping:", mapping)
+race_per_hundredk = {}
+
+# Populating a dictionary with the result of values' multiplication of other two dictionaries
+for row in race_counts:
+    #print("row:", row)
+    race_per_hundredk[row] = ((race_counts[row]/mapping[row])*100000)
+print("race_per_hundredk:", race_per_hundredk)
+
+intents = [row[3] for row in data]
+#print("intents:", intents)
+races = [row[7] for row in data]
+#print("races[0:50]:", races[0:50])
+homicide_race_counts = {}
+for i, race in enumerate(races):
+    if intents[i] == 'Homicide':
+        if race in homicide_race_counts:
+            homicide_race_counts[race] += 1
+        else:
+            homicide_race_counts[race] = 1
+print("homicide_race_counts:", homicide_race_counts)
+
+homicide_per_hundredk = {}
+for row in homicide_race_counts:
+    homicide_per_hundredk[row] = ((homicide_race_counts[row]/mapping[row])*100000)
+print("homicide_per_hundredk:", homicide_per_hundredk)
