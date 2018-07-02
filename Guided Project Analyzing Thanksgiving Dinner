@@ -1,0 +1,169 @@
+
+# coding: utf-8
+
+# In[23]:
+
+
+#Use the pandas.read_csv() function to read the thanksgiving.csv 
+#file in.
+#Display the first few rows of data to see what the columns 
+#and rows look like.
+import pandas as pd
+data = pd.read_csv("thanksgiving.csv", encoding="Latin-1")
+#print(data[0:5])
+
+
+# In[4]:
+
+
+#In a separate notebook cell, display all of the column names to 
+#get a sense of what the data consists of
+print(data.head(0)) 
+
+
+# In[35]:
+
+
+#display counts of how many times each category occurs in the 
+#Do you celebrate Thanksgiving? column
+print(data["Do you celebrate Thanksgiving?"].value_counts())
+
+
+
+# In[36]:
+
+
+#Filter out any rows in data where the response to 
+#Do you celebrate Thanksgiving? is not Yes
+data = data[data["Do you celebrate Thanksgiving?"] == "Yes"]
+
+
+# In[37]:
+
+
+#display counts of how many times each category occurs in the
+#What is typically the main dish at your Thanksgiving dinner? 
+#column
+print(data["What is typically the main dish at your Thanksgiving dinner?"].value_counts())
+
+
+# In[38]:
+
+
+#Display the Do you typically have gravy? column for any rows 
+#from data where the What is typically the main dish at your 
+#Thanksgiving dinner? column equals Tofurkey
+data_Tofurkey = data[data["What is typically the main dish at your Thanksgiving dinner?"] == "Tofurkey"]
+print(data_Tofurkey["Do you typically have gravy?"])
+
+
+# In[45]:
+
+
+#Generate a Boolean Series indicating where the Which type of 
+#pie is typically served at your Thanksgiving dinner? Please 
+#select all that apply. - Apple column is null
+apple_isnull = pd.isnull(data["Which type of pie is typically served at your Thanksgiving dinner? Please select all that apply. - Apple"])
+
+
+# In[46]:
+
+
+#Generate a Boolean Series indicating where ... pumpkin is null
+pumpkin_isnull = pd.isnull(data["Which type of pie is typically served at your Thanksgiving dinner? Please select all that apply. - Pumpkin"])
+
+
+# In[47]:
+
+
+#Generate a Boolean Series indicating where ... pecan is null
+pecan_isnull = pd.isnull(data["Which type of pie is typically served at your Thanksgiving dinner? Please selec#Generate a Boolean Series indicating where ... pumpkin is nullt all that apply. - Pecan"])
+
+
+# In[49]:
+
+
+#Display the unique values and how many times each occurs in 
+#the no_pies column.
+no_pies = apple_isnull & pumpkin_isnull & pecan_isnull
+print(no_pies.value_counts())
+
+
+# In[121]:
+
+
+#Write a function to convert a single string to an 
+#appropriate integer value. This will allow us to convert the 
+#values in the Age column to integers
+def convert_string(age_string):
+    if pd.isnull(age_string) == True:
+        return None
+    age_string = age_string.split(" ")[0]
+    age_string = age_string.replace("+"," ")
+    return int(age_string)
+
+data["int_age"] = data["Age"].apply(convert_string)
+print(data["int_age"].describe())
+print(data["int_age"].value_counts())
+
+
+# In[107]:
+
+
+#The How much total combined money did all members of your 
+#HOUSEHOLD earn last year? column is very similar to the Age 
+#column. It contains categories, but can be converted to 
+#numerical values
+
+def convert_string(income_string):
+    if pd.isnull(income_string) == True:
+        return None
+    income_string = income_string.replace("$","")
+    income_string = income_string.replace(",","")
+    income_string = income_string.split(" ")[0]
+    if income_string == "Prefer":
+        return None
+    return int(income_string)
+
+data["int_income"] = data["How much total combined money did all members of your HOUSEHOLD earn last year?"].apply(convert_string)
+data["int_income"].describe()
+#print(data["int_income"].describe())
+#print(data["int_income"].value_counts())
+
+
+# In[111]:
+
+
+#See how far people earning under 150000 will travel
+data[data["int_income"] < 150000]["How far will you travel for Thanksgiving?"].value_counts()
+
+
+
+# In[110]:
+
+
+#See how far people earning over 150000 will travel
+data[data["int_income"] > 150000]["How far will you travel for Thanksgiving?"].value_counts()
+
+
+# In[127]:
+
+
+#Generate a pivot table showing the average age of respondents
+#for each category of Have you ever tried to meet up with 
+#hometown friends on Thanksgiving night? and Have you ever 
+#attended a "Friendsgiving?".
+pivot_one = data.pivot_table(index="Have you ever tried to meet up with hometown friends on Thanksgiving night?", columns='Have you ever attended a "Friendsgiving?"', values="int_age")
+print(pivot_one)
+
+
+# In[129]:
+
+
+#Generate a pivot table showing the average age of respondents
+#for each category of Have you ever tried to meet up with 
+#hometown friends on Thanksgiving night? and Have you ever 
+#attended a "Friendsgiving?".
+pivot_one = data.pivot_table(index="Have you ever tried to meet up with hometown friends on Thanksgiving night?", columns='Have you ever attended a "Friendsgiving?"', values="int_income")
+print(pivot_one)
+
