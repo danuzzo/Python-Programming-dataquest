@@ -1,0 +1,147 @@
+
+# coding: utf-8
+
+# In[1]:
+
+
+import pandas as pd 
+autos = pd.read_csv("autos.csv", encoding='Latin-1')
+
+
+# In[2]:
+
+
+autos
+
+
+# In[3]:
+
+
+print(autos.info())
+
+
+# In[4]:
+
+
+print(autos.head())
+
+
+# In[5]:
+
+
+print(autos.columns)
+
+
+# In[6]:
+
+
+autos.rename(columns = {'yearOfRegistration':'registration_year'}, inplace = True)
+
+
+# In[7]:
+
+
+autos.rename(columns = {'monthOfRegistration':'registration_month'}, inplace = True)
+autos.rename(columns = {'notRepairedDamage':'unrepaired_damage'}, inplace = True)
+autos.rename(columns = {'dateCreated':'ad_created'}, inplace = True)
+def convert(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+import re
+for c in autos.columns:
+    autos.rename(columns = {c:convert(c)}, inplace = True)
+
+
+# In[8]:
+
+
+autos.describe
+
+
+# In[9]:
+
+
+autos["price"] = autos["price"].str.replace(",","").str.replace("$","").astype(float)
+autos["odometer"] = autos["odometer"].str.replace(",","").str.replace("km","").astype(float)
+
+
+# In[10]:
+
+
+autos.rename(columns = {'odometer':'odometer_km'}, inplace = True)
+
+
+# In[11]:
+
+
+autos_shape = autos["price"].unique().shape
+print("shape " , autos_shape)
+autos_desc = autos["price"].describe()
+print("desc " , autos_desc)
+autos_valco = autos["price"].value_counts().head
+print("val counts " , autos_valco)
+
+
+# In[12]:
+
+
+autos[['date_crawled','ad_created','last_seen']][0:5]
+
+
+# In[13]:
+
+
+autos['date_crawled'].str[:10].value_counts(normalize=True, dropna=False).sort_index()
+
+
+# In[14]:
+
+
+autos['ad_created'].str[:10].value_counts(normalize=True, dropna=False).sort_index()
+
+
+# In[15]:
+
+
+autos['last_seen'].str[:10].value_counts(normalize=True, dropna=False).sort_index()
+
+
+# In[16]:
+
+
+autos['registration_year'].describe()
+
+
+# In[17]:
+
+
+autos_bef_1900 = autos['registration_year'] <1900
+print(autos_bef_1900.value_counts().head)
+
+
+# In[18]:
+
+
+autos_aft_2016 = autos['registration_year'] > 2016
+print(autos_aft_2016.value_counts().head)
+
+
+# In[19]:
+
+
+autos[autos['registration_year'] < 1900]
+autos.drop(autos[autos['registration_year'] < 1900].index, inplace=True)
+
+
+# In[20]:
+
+
+autos[autos['registration_year'] > 2016]
+autos.drop(autos[autos['registration_year'] > 2016].index, inplace=True)
+
+
+# In[21]:
+
+
+autos["brand"].value_counts()
+
